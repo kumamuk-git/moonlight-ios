@@ -22,6 +22,13 @@
 
 Moonlight の **Resolution → Full** でパネルの実ピクセル数を横向きで要求します。**Optimize Game Settings → Yes** を選び、Windows 側の Sunshine で対象画面を指定します。すでに有効な画面なら `dd_configuration_option = verify_only` と `dd_resolution_option = auto` に設定し、新しくセッションを開始します。Windows の対象ディスプレイでその解像度が選べることが条件です。一覧にない場合は、対応するカスタム解像度または仮想ディスプレイを用意します。[Sunshine のディスプレイ設定](https://docs.lizardbyte.dev/projects/sunshine/latest/md_docs_2configuration.html#dd_resolution_option)
 
+#### 2420 × 1668 の iPad に Windows のデスクトップ全体を表示する例
+
+1. Windows で Parsec Virtual Display Driver（0.37 以降）の仮想モニターを使う場合は、空いているカスタム解像度枠に幅 `2420`、高さ `1668`、リフレッシュレート `60` Hz を十進数で登録します。既存の枠は保持します。[Parsec のカスタム解像度の設定](https://support.parsec.app/hc/en-us/articles/32361359271444-VDD-Advanced-Configuration)
+2. 仮想モニターを作成または再接続し、Windows の **設定 → システム → ディスプレイ** で「表示画面を拡張する」を選びます。そのモニターを選択して `2420 × 1668` に設定します。Sunshine で使う間はモニターを有効にしておきます。既存の Parsec ドライバーでモニターを作成・削除できる管理ツールの一例は [ParsecVDisplay](https://github.com/nomi-san/parsec-vdd/releases) です。
+3. Sunshine の Troubleshooting ログでそのモニターの `device_id` を確認し、**Configuration → Audio/Video** の出力先（`output_name`）に指定して設定を反映します。この指定は Sunshine のほかのクライアントにも適用されます。元の画面へ戻すには出力先を以前の値に戻します。
+4. iPad で **Full** と **60 FPS** を選び、既存の Desktop セッションを終了してから新規に開始します。Sunshine のログに `Capture size : 2420x1668` と出れば、Windows のデスクトップと iPad の縦横比が一致しています。目的のアプリが別画面で開いた場合は、そのウィンドウを仮想モニターへ移動します。
+
 [![CI](https://github.com/moonlight-stream/moonlight-ios/actions/workflows/ci.yml/badge.svg)](https://github.com/moonlight-stream/moonlight-ios/actions/workflows/ci.yml)
 
 [Moonlight for iOS/tvOS](https://moonlight-stream.org) is an open source client for [Sunshine](https://github.com/LizardByte/Sunshine) and NVIDIA GameStream. Moonlight for iOS/tvOS allows you to stream your full collection of games and apps from your powerful desktop computer to your iOS device or Apple TV.
