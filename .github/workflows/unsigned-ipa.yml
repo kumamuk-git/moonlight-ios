@@ -10,7 +10,7 @@ permissions:
 
 jobs:
   build:
-    runs-on: macos-latest
+    runs-on: macos-26-intel
     steps:
       - uses: actions/checkout@v7
         with:
@@ -18,7 +18,7 @@ jobs:
 
       - name: Build for iPhone and iPad
         run: |
-          xcodebuild -project Moonlight.xcodeproj -scheme Moonlight \
+          xcodebuild -quiet -project Moonlight.xcodeproj -scheme Moonlight \
             -configuration Release -sdk iphoneos -destination 'generic/platform=iOS' \
             -derivedDataPath "$RUNNER_TEMP/MoonlightBuild" \
             CODE_SIGNING_ALLOWED=NO build
