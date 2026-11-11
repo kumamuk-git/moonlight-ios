@@ -6,6 +6,26 @@
 2. `master` に push すると GitHub Actions が macOS でビルドします。手動の場合は **Actions → Build unsigned IPA → Run workflow** を選びます。完了した実行の **Artifacts** から `Moonlight-unsigned.ipa` をダウンロードします。
 3. Windows で Sideloadly を開き、USB 接続した端末と IPA を選んで、自分の Apple Account で署名・インストールします。端末の案内に従って開発者を信頼し、必要に応じてデベロッパモードを有効にします。無料アカウントでは通常 7 日ごとに再署名します。[Sideloadly 公式サイト](https://sideloadly.io/)
 
+### 配布 IPA のライセンスと対応ソース
+
+**2026-11-12 配布のビルド #5** は、Moonlight iOS に SonoBus の直接受信などを追加した改造版です。この IPA に適用される Moonlight、AOO、oscpack のライセンスと、ビルドに使ったソースは以下から取得できます。
+
+- [ビルド #5 の IPA と SHA-256](https://github.com/kumamuk-git/moonlight-ios/actions/runs/43047941066#artifacts)
+- [改造版のソース（801d39d）](https://github.com/kumamuk-git/moonlight-ios/tree/801d39db1369da9bcebe07ef143cbd5223ce732d) · [この版のビルド手順](https://github.com/kumamuk-git/moonlight-ios/blob/801d39db1369da9bcebe07ef143cbd5223ce732d/.github/workflows/unsigned-ipa.yml)
+- [Moonlight の GPLv3 と App Store 配布例外](https://github.com/kumamuk-git/moonlight-ios/blob/801d39db1369da9bcebe07ef143cbd5223ce732d/LICENSE.txt)
+- [AOO の BSD 3条ライセンス](https://github.com/essej/aoo/blob/9960da7f277b2e0a4ef2725c33895559b634cab7/LICENSE) · [oscpack の MIT ライセンス](https://github.com/essej/aoo/blob/9960da7f277b2e0a4ef2725c33895559b634cab7/deps/oscpack/LICENSE)
+
+依存ソースも含めてビルド #5 を取得するには、次のコマンドを使います。
+
+```sh
+git clone https://github.com/kumamuk-git/moonlight-ios.git
+cd moonlight-ios
+git checkout 801d39db1369da9bcebe07ef143cbd5223ce732d
+git submodule update --init --recursive
+```
+
+以降のビルドでは、各 Actions 実行の **Summary** と IPA 内の `Payload/Moonlight.app/Licenses/SOURCE.md` に、その版のソースとライセンスへのリンクがあります。ライセンス原文も同じフォルダーに収録しています。
+
 ### 変換・無変換
 
 外付けキーボードの `International4`（変換）を Windows の `VK_CONVERT`（`0x1C`）、`International5`（無変換）を `VK_NONCONVERT`（`0x1D`）に変換します。押下と解放の両方を転送します。実機では Moonlight で Windows に接続し、日本語 IME で普段の変換・無変換の割り当てが働くかを確認できます。

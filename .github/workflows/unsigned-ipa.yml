@@ -31,8 +31,40 @@ jobs:
           lipo "$app/Moonlight" -verify_arch arm64
           mkdir -p Payload
           ditto "$app" Payload/Moonlight.app
+
+          notices="Payload/Moonlight.app/Licenses"
+          mkdir -p "$notices"
+          cp "$GITHUB_WORKSPACE/LICENSE.txt" "$notices/Moonlight.txt"
+          cp "$GITHUB_WORKSPACE/ThirdParty/aoo/LICENSE" "$notices/AOO.txt"
+          cp "$GITHUB_WORKSPACE/ThirdParty/aoo/deps/oscpack/LICENSE" "$notices/oscpack.txt"
+
+          repo="$GITHUB_SERVER_URL/$GITHUB_REPOSITORY"
+          aoo_sha=$(git -C "$GITHUB_WORKSPACE" rev-parse "${GITHUB_SHA}:ThirdParty/aoo")
+          aoo_repo=$(git -C "$GITHUB_WORKSPACE" config -f .gitmodules --get submodule.ThirdParty/aoo.url)
+          aoo_repo=${aoo_repo%.git}
+          cat > "$notices/SOURCE.md" <<EOF
+          ## この IPA の対応ソースとライセンス
+
+          - [改造版 Moonlight のソース（$GITHUB_SHA）]($repo/tree/$GITHUB_SHA)
+          - [この版のビルド手順]($repo/blob/$GITHUB_SHA/.github/workflows/unsigned-ipa.yml)
+          - [Moonlight の GPLv3 と App Store 配布例外]($repo/blob/$GITHUB_SHA/LICENSE.txt)
+          - [AOO の BSD 3条ライセンス]($aoo_repo/blob/$aoo_sha/LICENSE)
+          - [oscpack の MIT ライセンス]($aoo_repo/blob/$aoo_sha/deps/oscpack/LICENSE)
+
+          依存ソースも含めて取得するコマンド
+
+              git clone $repo.git moonlight-ios
+              cd moonlight-ios
+              git checkout $GITHUB_SHA
+              git submodule update --init --recursive
+          EOF
+
           /usr/bin/zip -qry Moonlight-unsigned.ipa Payload
           unzip -tq Moonlight-unsigned.ipa
+          for file in "$notices"/{Moonlight.txt,AOO.txt,oscpack.txt,SOURCE.md}; do
+            unzip -p Moonlight-unsigned.ipa "$file" | cmp - "$file"
+          done
+          cat "$notices/SOURCE.md" >> "$GITHUB_STEP_SUMMARY"
 
       - uses: actions/upload-artifact@v7
         with:
