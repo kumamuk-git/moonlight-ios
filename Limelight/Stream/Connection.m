@@ -90,19 +90,21 @@ static int initSonoBus(int audioConfiguration, POPUS_MULTISTREAM_CONFIGURATION o
         ArCleanup();
         return -1;
     }
+    uint16_t localPort = [TemporarySettings sonoBusLocalPort];
     if (endpoint->group) {
-        NSString *username = [@"Moonlight-" stringByAppendingString:[NSUUID.UUID.UUIDString substringToIndex:8]];
+        NSString *username = [TemporarySettings sonoBusParticipantName];
         SonoBusGroup group = { endpoint->group.user.UTF8String, endpoint->group.password.UTF8String,
                                username.UTF8String, sonoBusGroupError };
-        sonoBusReceiver = SonoBusOpen("aoo.sonobus.net", 10998, have.freq, have.samples, &group);
+        sonoBusReceiver = SonoBusOpen("aoo.sonobus.net", 10998, have.freq, have.samples, &group, &localPort);
     } else {
-        sonoBusReceiver = SonoBusOpen(endpoint->host, endpoint->port, have.freq, have.samples, NULL);
+        sonoBusReceiver = SonoBusOpen(endpoint->host, endpoint->port, have.freq, have.samples, NULL, &localPort);
     }
     if (!sonoBusReceiver) {
         Log(LOG_E, @"Failed to initialize SonoBus receiver");
         ArCleanup();
         return -1;
     }
+    [TemporarySettings setSonoBusLocalPort:localPort];
     SDL_PauseAudioDevice(audioDevice, 0);
     [[AVAudioSession sharedInstance] setCategory:AVAudioSessionCategoryPlayback withOptions:AVAudioSessionCategoryOptionMixWithOthers error:nil];
     return 0;

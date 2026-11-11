@@ -4,6 +4,7 @@
 
 #include <algorithm>
 #include <atomic>
+#include <cerrno>
 #include <chrono>
 #include <cstdio>
 #include <cstring>
@@ -60,7 +61,38 @@ struct SonoBusReceiver {
     }
 };
 
-static int connectSocket(const char *host, uint16_t port) {
+template<typename Address>
+static uint16_t bindLocalPort(int fd, Address &address, uint16_t &portField, uint16_t preferred) {
+    auto *addr = reinterpret_cast<sockaddr *>(&address);
+    socklen_t length = sizeof(address);
+    portField = htons(preferred);
+    if (bind(fd, addr, length) < 0) {
+        if (!preferred || errno != EADDRINUSE) {
+            return 0;
+        }
+        // Another app has taken our previous port. Remember the replacement on success.
+        portField = 0;
+        if (bind(fd, addr, length) < 0) {
+            return 0;
+        }
+    }
+    return getsockname(fd, addr, &length) == 0 ? ntohs(portField) : 0;
+}
+
+static uint16_t bindLocalPort(int fd, int family, uint16_t preferred) {
+    if (family == AF_INET) {
+        sockaddr_in addr{};
+        addr.sin_family = AF_INET;
+        return bindLocalPort(fd, addr, addr.sin_port, preferred);
+    } else if (family == AF_INET6) {
+        sockaddr_in6 addr{};
+        addr.sin6_family = AF_INET6;
+        return bindLocalPort(fd, addr, addr.sin6_port, preferred);
+    }
+    return 0;
+}
+
+static int connectSocket(const char *host, uint16_t port, uint16_t &localPort) {
     char service[6];
     snprintf(service, sizeof(service), "%u", (unsigned)port);
     addrinfo hints{}, *addresses;
@@ -74,8 +106,10 @@ static int connectSocket(const char *host, uint16_t port) {
     for (auto *addr = addresses; addr; addr = addr->ai_next) {
         fd = socket(addr->ai_family, addr->ai_socktype, addr->ai_protocol);
         if (fd >= 0) {
-            if (connect(fd, addr->ai_addr, addr->ai_addrlen) == 0 &&
+            uint16_t boundPort = bindLocalPort(fd, addr->ai_family, localPort);
+            if (boundPort && connect(fd, addr->ai_addr, addr->ai_addrlen) == 0 &&
                 fcntl(fd, F_SETFL, O_NONBLOCK) == 0) {
+                localPort = boundPort;
                 break;
             }
             close(fd);
@@ -213,20 +247,20 @@ static int32_t sendGroupPacket(void *context, const char *data, int32_t size, vo
     return (int32_t)sendto(receiver->socket, data, size, 0, static_cast<sockaddr *>(address), sizeof(sockaddr_in));
 }
 
-static bool connectGroup(SonoBusReceiver *receiver, const char *host, uint16_t port, const SonoBusGroup &group) {
+static bool connectGroup(SonoBusReceiver *receiver, const char *host, uint16_t port,
+                         const SonoBusGroup &group, uint16_t &localPort) {
     receiver->socket = socket(AF_INET, SOCK_DGRAM, 0);
-    sockaddr_in local{};
-    local.sin_family = AF_INET;
-    socklen_t length = sizeof(local);
-    if (receiver->socket < 0 || bind(receiver->socket, (sockaddr *)&local, length) < 0 ||
-        getsockname(receiver->socket, (sockaddr *)&local, &length) < 0 ||
-        fcntl(receiver->socket, F_SETFL, O_NONBLOCK) < 0) {
+    if (receiver->socket < 0) {
+        return false;
+    }
+    localPort = bindLocalPort(receiver->socket, AF_INET, localPort);
+    if (!localPort || fcntl(receiver->socket, F_SETFL, O_NONBLOCK) < 0) {
         return false;
     }
     receiver->groupName = group.name;
     receiver->password = group.password;
     receiver->onError = group.onError;
-    receiver->client.reset(aoonet_client_new(receiver, sendGroupPacket, ntohs(local.sin_port)));
+    receiver->client.reset(aoonet_client_new(receiver, sendGroupPacket, localPort));
     if (!receiver->client || !aoonet_client_connect(receiver->client.get(), host, port, group.username, "")) {
         return false;
     }
@@ -280,21 +314,23 @@ static void receivePackets(SonoBusReceiver *receiver) {
     aoo_sink_send(sink);
 }
 
-SonoBusReceiver *SonoBusOpen(const char *host, uint16_t port, int sampleRate, int blockSize, const SonoBusGroup *group) {
-    if (!host || !port || sampleRate <= 0 || blockSize <= 0) {
+SonoBusReceiver *SonoBusOpen(const char *host, uint16_t port, int sampleRate, int blockSize,
+                            const SonoBusGroup *group, uint16_t *localPort) {
+    if (!host || !port || !localPort || sampleRate <= 0 || blockSize <= 0) {
         return nullptr;
     }
     try {
         static std::once_flag initialized;
         std::call_once(initialized, aoo_initialize);
         auto receiver = std::make_unique<SonoBusReceiver>();
+        uint16_t boundPort = *localPort;
         if (group) {
             if (!group->name || !*group->name || strlen(group->name) > SonoBusMaxGroupNameBytes ||
-                !group->password || !group->username || !group->onError || !connectGroup(receiver.get(), host, port, *group)) {
+                !group->password || !group->username || !group->onError || !connectGroup(receiver.get(), host, port, *group, boundPort)) {
                 return nullptr;
             }
         } else {
-            receiver->socket = connectSocket(host, port);
+            receiver->socket = connectSocket(host, port, boundPort);
             if (receiver->socket < 0) {
                 return nullptr;
             }
@@ -311,6 +347,7 @@ SonoBusReceiver *SonoBusOpen(const char *host, uint16_t port, int sampleRate, in
         receiver->left.resize(blockSize);
         receiver->right.resize(blockSize);
         receiver->networkThread = std::thread(receivePackets, receiver.get());
+        *localPort = boundPort;
         return receiver.release();
     } catch (const std::exception &) {
         return nullptr;

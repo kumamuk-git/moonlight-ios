@@ -26,6 +26,26 @@
     return [NSUserDefaults.standardUserDefaults boolForKey:@"sonoBusUseGroup"];
 }
 
++ (uint16_t)sonoBusLocalPort {
+    NSInteger port = [NSUserDefaults.standardUserDefaults integerForKey:@"sonoBusLocalPort"];
+    return (port > 1023 && port <= UINT16_MAX) ? (uint16_t)port : 0;
+}
+
++ (void)setSonoBusLocalPort:(uint16_t)port {
+    [NSUserDefaults.standardUserDefaults setInteger:port forKey:@"sonoBusLocalPort"];
+}
+
++ (NSString *)sonoBusParticipantName {
+    NSUserDefaults *defaults = NSUserDefaults.standardUserDefaults;
+    NSString *name = [defaults stringForKey:@"sonoBusParticipantName"];
+    if (!name.length) {
+        NSString *uuid = NSUUID.UUID.UUIDString;
+        name = [@"Moonlight-" stringByAppendingString:[uuid substringFromIndex:uuid.length - 12]];
+        [defaults setObject:name forKey:@"sonoBusParticipantName"];
+    }
+    return name;
+}
+
 static NSDictionary *sonoBusKeychainQuery(void) {
     return @{(__bridge id)kSecClass: (__bridge id)kSecClassGenericPassword,
              (__bridge id)kSecAttrService: @"Moonlight.SonoBus",

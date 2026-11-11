@@ -19,7 +19,9 @@ typedef struct {
 } SonoBusGroup;
 
 // In group mode host/port identify the connection server. Otherwise they identify the audio sender.
-SonoBusReceiver *SonoBusOpen(const char *host, uint16_t port, int sampleRate, int blockSize, const SonoBusGroup *group);
+// localPort is the preferred UDP port (0 on first use); on success it receives the actual port.
+SonoBusReceiver *SonoBusOpen(const char *host, uint16_t port, int sampleRate, int blockSize,
+                           const SonoBusGroup *group, uint16_t *localPort);
 void SonoBusRender(SonoBusReceiver *receiver, float *interleavedStereo, int frames);
 // Stop the audio callback before closing its receiver.
 void SonoBusClose(SonoBusReceiver *receiver);

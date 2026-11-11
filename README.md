@@ -38,6 +38,8 @@ git submodule update --init --recursive
 
 UDP で直接つなぐ場合は、PC の SonoBus をグループから退出させ、送信を有効にします。Moonlight の **Stream Audio → SonoBus Direct UDP…** に PC の SonoBus が表示するローカル UDP ポートを入力し、**Use SonoBus** を選びます。
 
+Moonlight は再接続時に同じ参加者名と端末側の UDP ポートを使います。Direct UDP では、PC から見た端末の IP アドレスやポートが変わると別の相手として表示されます。旧版で増えた接続先は自動では消えないため、不要なものは PC の SonoBus で削除してください。
+
 この設定では音声を SonoBus から直接受信します。通常の Moonlight 音声へ戻すには **Stream Audio → Use Moonlight** を選び、再接続します。受信対象は 1 台の PC で、PCM と Opus に対応します。モノラルは左右両方に再生し、ステレオは左右を保持します。[SonoBus](https://github.com/sonosaurus/sonobus) / [使用している AOO](https://github.com/essej/aoo/tree/9960da7f277b2e0a4ef2725c33895559b634cab7)
 
 ### iPad の画面に解像度を合わせる
