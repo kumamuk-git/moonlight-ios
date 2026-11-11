@@ -46,6 +46,7 @@
 
 + (BOOL)sendKeyEvent:(UIKey*)key down:(BOOL)down API_AVAILABLE(ios(13.4)) {
     char modifierFlags = 0;
+    char keyFlags = 0;
     short keyCode = 0;
     
     if (key.modifierFlags & UIKeyModifierShift) {
@@ -210,6 +211,14 @@
             case UIKeyboardHIDUsageKeyboardNonUSBackslash:
                 keyCode = 0xE2;
                 break;
+            case UIKeyboardHIDUsageKeyboardInternational4: // JIS 変換
+                keyCode = 0x1C; // VK_CONVERT
+                keyFlags = SS_KBE_FLAG_NON_NORMALIZED;
+                break;
+            case UIKeyboardHIDUsageKeyboardInternational5: // JIS 無変換
+                keyCode = 0x1D; // VK_NONCONVERT
+                keyFlags = SS_KBE_FLAG_NON_NORMALIZED;
+                break;
             case UIKeyboardHIDUsageKeypadComma:
                 keyCode = 0x6C;
                 break;
@@ -259,9 +268,9 @@
         }
     }
     
-    LiSendKeyboardEvent(0x8000 | keyCode,
-                        down ? KEY_ACTION_DOWN : KEY_ACTION_UP,
-                        modifierFlags);
+    LiSendKeyboardEvent2(0x8000 | keyCode,
+                         down ? KEY_ACTION_DOWN : KEY_ACTION_UP,
+                         modifierFlags, keyFlags);
     return true;
 }
 
