@@ -1268,7 +1268,10 @@
 					"$(PROJECT_DIR)/ThirdParty/aoo/lib",
 					"$(PROJECT_DIR)/ThirdParty/aoo/deps",
 					"$(SDKROOT)/usr/include/libxml2/**",
-					"$(PROJECT_DIR)/libs/**",
+					"$(PROJECT_DIR)/libs/FFmpeg/include",
+					"$(PROJECT_DIR)/libs/SDL2/include",
+					"$(PROJECT_DIR)/libs/opus/include",
+					"$(PROJECT_DIR)/libs/opus/include/opus",
 				);
 				INFOPLIST_FILE = "Limelight/Limelight-Info.plist";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.games";
@@ -1321,7 +1324,10 @@
 					"$(PROJECT_DIR)/ThirdParty/aoo/lib",
 					"$(PROJECT_DIR)/ThirdParty/aoo/deps",
 					"$(SDKROOT)/usr/include/libxml2/**",
-					"$(PROJECT_DIR)/libs/**",
+					"$(PROJECT_DIR)/libs/FFmpeg/include",
+					"$(PROJECT_DIR)/libs/SDL2/include",
+					"$(PROJECT_DIR)/libs/opus/include",
+					"$(PROJECT_DIR)/libs/opus/include/opus",
 				);
 				INFOPLIST_FILE = "Limelight/Limelight-Info.plist";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.games";
