@@ -28,7 +28,7 @@ jobs:
         run: |
           app="MoonlightBuild/Build/Products/Release-iphoneos/Moonlight.app"
           test "$(/usr/libexec/PlistBuddy -c 'Print CFBundleSupportedPlatforms:0' "$app/Info.plist")" = iPhoneOS
-          lipo -verify_arch arm64 "$app/Moonlight"
+          lipo "$app/Moonlight" -verify_arch arm64
           mkdir -p Payload
           ditto "$app" Payload/Moonlight.app
           /usr/bin/zip -qry Moonlight-unsigned.ipa Payload
