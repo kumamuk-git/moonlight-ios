@@ -37,4 +37,8 @@
 
 - (id) initFromSettings:(Settings*)settings;
 
+// A zero port selects Moonlight's normal audio stream.
++ (uint16_t)sonoBusPort;
++ (void)setSonoBusPort:(uint16_t)port;
+
 @end

@@ -1,0 +1,40 @@
+name: Build unsigned IPA
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          submodules: recursive
+
+      - name: Build for iPhone and iPad
+        run: |
+          xcodebuild -downloadPlatform iOS
+          xcodebuild -project Moonlight.xcodeproj -scheme Moonlight \
+            -configuration Release -destination 'generic/platform=iOS' \
+            -derivedDataPath "$RUNNER_TEMP/MoonlightBuild" \
+            CODE_SIGNING_ALLOWED=NO build
+
+      - name: Package device app
+        working-directory: ${{ runner.temp }}
+        run: |
+          app="MoonlightBuild/Build/Products/Release-iphoneos/Moonlight.app"
+          test "$(/usr/libexec/PlistBuddy -c 'Print CFBundleSupportedPlatforms:0' "$app/Info.plist")" = iPhoneOS
+          lipo -verify_arch arm64 "$app/Moonlight"
+          mkdir -p Payload
+          ditto "$app" Payload/Moonlight.app
+          /usr/bin/zip -qry Moonlight-unsigned.ipa Payload
+          unzip -tq Moonlight-unsigned.ipa
+
+      - uses: actions/upload-artifact@v7
+        with:
+          path: ${{ runner.temp }}/Moonlight-unsigned.ipa
+          archive: false
+          if-no-files-found: error

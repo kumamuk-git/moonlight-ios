@@ -11,6 +11,15 @@
 
 @implementation TemporarySettings
 
++ (uint16_t)sonoBusPort {
+    NSInteger port = [NSUserDefaults.standardUserDefaults integerForKey:@"sonoBusPort"];
+    return (port > 0 && port <= UINT16_MAX) ? (uint16_t)port : 0;
+}
+
++ (void)setSonoBusPort:(uint16_t)port {
+    [NSUserDefaults.standardUserDefaults setInteger:port forKey:@"sonoBusPort"];
+}
+
 - (id) initFromSettings:(Settings*)settings {
     self = [self init];
     

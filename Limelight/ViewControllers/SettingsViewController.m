@@ -16,6 +16,7 @@
 @implementation SettingsViewController {
     NSInteger _bitrate;
     NSInteger _lastSelectedResolutionIndex;
+    __weak UIAlertAction *_useSonoBusAction;
 }
 
 @dynamic overrideUserInterfaceStyle;
@@ -81,7 +82,7 @@ CGSize resolutionTable[RESOLUTION_TABLE_SIZE];
         // indicators. Ignore any views we don't recognize.
         if (![view isKindOfClass:[UILabel class]] &&
             ![view isKindOfClass:[UISegmentedControl class]] &&
-            ![view isKindOfClass:[UISlider class]]) {
+            ![view isKindOfClass:[UISlider class]] && view != self.streamAudioButton) {
             continue;
         }
         
@@ -158,6 +159,12 @@ BOOL isCustomResolution(CGSize res) {
     resolutionTable[3] = CGSizeMake(3840, 2160);
     resolutionTable[4] = CGSizeMake(safeAreaWidth, fullScreenHeight);
     resolutionTable[5] = CGSizeMake(fullScreenWidth, fullScreenHeight);
+    if (UIDevice.currentDevice.userInterfaceIdiom == UIUserInterfaceIdiomPad) {
+        // The stream is landscape. Display Zoom can make the window's logical
+        // size times its scale differ from the physical panel resolution.
+        CGSize panel = (window.screen ?: UIScreen.mainScreen).nativeBounds.size;
+        resolutionTable[5] = CGSizeMake(MAX(panel.width, panel.height), MIN(panel.width, panel.height));
+    }
     resolutionTable[6] = CGSizeMake([currentSettings.width integerValue], [currentSettings.height integerValue]); // custom initial value
     
     // Don't populate the custom entry unless we have a custom resolution
@@ -249,6 +256,7 @@ BOOL isCustomResolution(CGSize res) {
     [self.multiControllerSelector setSelectedSegmentIndex:currentSettings.multiController ? 1 : 0];
     [self.swapABXYButtonsSelector setSelectedSegmentIndex:currentSettings.swapABXYButtons ? 1 : 0];
     [self.audioOnPCSelector setSelectedSegmentIndex:currentSettings.playAudioOnPC ? 1 : 0];
+    [self updateStreamAudioButton];
     NSInteger onscreenControls = [currentSettings.onscreenControls integerValue];
     _lastSelectedResolutionIndex = resolution;
     [self.resolutionSelector setSelectedSegmentIndex:resolution];
@@ -263,6 +271,46 @@ BOOL isCustomResolution(CGSize res) {
     [self.bitrateSlider addTarget:self action:@selector(bitrateSliderMoved) forControlEvents:UIControlEventValueChanged];
     [self updateBitrateText];
     [self updateResolutionDisplayViewText];
+}
+
+- (void)updateStreamAudioButton {
+    uint16_t port = TemporarySettings.sonoBusPort;
+    NSString *title = port ? [NSString stringWithFormat:@"Stream Audio: SonoBus (UDP %u)", port] : @"Stream Audio: Moonlight";
+    [self.streamAudioButton setTitle:title forState:UIControlStateNormal];
+}
+
+- (void)validateSonoBusPort:(UITextField *)field {
+    NSString *text = field.text;
+    NSCharacterSet *invalid = [[NSCharacterSet characterSetWithCharactersInString:@"0123456789"] invertedSet];
+    _useSonoBusAction.enabled = text.length <= 5 && text.integerValue > 0 &&
+        text.integerValue <= UINT16_MAX && [text rangeOfCharacterFromSet:invalid].location == NSNotFound;
+}
+
+- (IBAction)chooseStreamAudio:(id)sender {
+    UIAlertController *alert = [UIAlertController alertControllerWithTitle:@"Stream Audio"
+        message:@"For SonoBus, enter the UDP port shown by SonoBus on the streaming PC."
+        preferredStyle:UIAlertControllerStyleAlert];
+    [alert addTextFieldWithConfigurationHandler:^(UITextField *field) {
+        field.keyboardType = UIKeyboardTypeNumberPad;
+        field.placeholder = @"SonoBus UDP port";
+        uint16_t port = TemporarySettings.sonoBusPort;
+        field.text = [NSString stringWithFormat:@"%u", port ? port : 11000];
+        [field addTarget:self action:@selector(validateSonoBusPort:) forControlEvents:UIControlEventEditingChanged];
+    }];
+    UITextField *field = alert.textFields.firstObject;
+    UIAlertAction *useSonoBus = [UIAlertAction actionWithTitle:@"Use SonoBus" style:UIAlertActionStyleDefault
+        handler:^(UIAlertAction *action) {
+            [TemporarySettings setSonoBusPort:(uint16_t)field.text.integerValue];
+            [self updateStreamAudioButton];
+        }];
+    _useSonoBusAction = useSonoBus;
+    [alert addAction:useSonoBus];
+    [alert addAction:[UIAlertAction actionWithTitle:@"Use Moonlight" style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
+        [TemporarySettings setSonoBusPort:0];
+        [self updateStreamAudioButton];
+    }]];
+    [alert addAction:[UIAlertAction actionWithTitle:@"Cancel" style:UIAlertActionStyleCancel handler:nil]];
+    [self presentViewController:alert animated:YES completion:nil];
 }
 
 - (void) touchModeChanged {

@@ -8,6 +8,10 @@
 
 #import "Connection.h"
 #import "Utils.h"
+#if !TARGET_OS_TV
+#import "TemporarySettings.h"
+#include "SonoBusReceiver.h"
+#endif
 
 #import <VideoToolbox/VideoToolbox.h>
 
@@ -44,6 +48,54 @@ static void* audioBuffer;
 static int audioFrameSize;
 
 static VideoDecoderRenderer* renderer;
+
+static void ArCleanup(void);
+
+#if !TARGET_OS_TV
+typedef struct {
+    const char *host;
+    uint16_t port;
+} SonoBusEndpoint;
+
+static SonoBusReceiver *sonoBusReceiver;
+
+static void SDLCALL renderSonoBus(void *userdata, Uint8 *stream, int length)
+{
+    SonoBusRender(sonoBusReceiver, (float *)stream, length / (2 * sizeof(float)));
+}
+
+static int initSonoBus(int audioConfiguration, POPUS_MULTISTREAM_CONFIGURATION opusConfig, void *context, int flags)
+{
+    const SonoBusEndpoint *endpoint = context;
+    SDL_AudioSpec want = {0}, have;
+    want.freq = 48000;
+    want.format = AUDIO_F32SYS;
+    want.channels = 2;
+    want.samples = 256;
+    want.callback = renderSonoBus;
+
+    if (SDL_InitSubSystem(SDL_INIT_AUDIO) < 0) {
+        Log(LOG_E, @"Failed to initialize SonoBus playback: %s", SDL_GetError());
+        return -1;
+    }
+    audioDevice = SDL_OpenAudioDevice(NULL, 0, &want, &have, 0);
+    if (!audioDevice) {
+        Log(LOG_E, @"Failed to open SonoBus audio device: %s", SDL_GetError());
+        ArCleanup();
+        return -1;
+    }
+    sonoBusReceiver = SonoBusOpen(endpoint->host, endpoint->port, have.freq, have.samples);
+    if (!sonoBusReceiver) {
+        Log(LOG_E, @"Failed to initialize SonoBus receiver for %s port %u", endpoint->host, endpoint->port);
+        ArCleanup();
+        return -1;
+    }
+    Log(LOG_I, @"Receiving SonoBus audio from %s port %u", endpoint->host, endpoint->port);
+    SDL_PauseAudioDevice(audioDevice, 0);
+    [[AVAudioSession sharedInstance] setCategory:AVAudioSessionCategoryPlayback withOptions:AVAudioSessionCategoryOptionMixWithOthers error:nil];
+    return 0;
+}
+#endif
 
 int DrDecoderSetup(int videoFormat, int width, int height, int redrawRate, void* context, int drFlags)
 {
@@ -260,7 +312,7 @@ int ArInit(int audioConfiguration, POPUS_MULTISTREAM_CONFIGURATION opusConfig, v
     return 0;
 }
 
-void ArCleanup(void)
+static void ArCleanup(void)
 {
     if (opusDecoder != NULL) {
         opus_multistream_decoder_destroy(opusDecoder);
@@ -271,6 +323,11 @@ void ArCleanup(void)
         SDL_CloseAudioDevice(audioDevice);
         audioDevice = 0;
     }
+
+#if !TARGET_OS_TV
+    SonoBusClose(sonoBusReceiver);
+    sonoBusReceiver = NULL;
+#endif
     
     if (audioBuffer != NULL) {
         SDL_free(audioBuffer);
@@ -498,13 +555,24 @@ void ClSetControllerLED(uint16_t controllerNumber, uint8_t r, uint8_t g, uint8_t
 -(void) main
 {
     [initLock lock];
+    void *audioContext = NULL;
+#if !TARGET_OS_TV
+    SonoBusEndpoint endpoint = { _hostString, TemporarySettings.sonoBusPort };
+    if (endpoint.port != 0) {
+        _arCallbacks.init = initSonoBus;
+        // Common supplies a discard callback when the renderer doesn't consume host audio.
+        _arCallbacks.decodeAndPlaySample = NULL;
+        _arCallbacks.capabilities |= CAPABILITY_DIRECT_SUBMIT;
+        audioContext = &endpoint;
+    }
+#endif
     LiStartConnection(&_serverInfo,
                       &_streamConfig,
                       &_clCallbacks,
                       &_drCallbacks,
                       &_arCallbacks,
                       NULL, 0,
-                      NULL, 0);
+                      audioContext, 0);
     [initLock unlock];
 }
 
