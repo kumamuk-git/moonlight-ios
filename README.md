@@ -33,8 +33,10 @@ git submodule update --init --recursive
 ### SonoBus の音を聴く
 
 1. Sunshine と同じ Windows PC で SonoBus を起動し、送りたい音を入力に割り当てます。DAW の出力を送りたい場合は、そのバスに SonoBus プラグインを挿します。
-2. SonoBus はグループから退出した状態で送信を有効にします。**Use Specific UDP Port** でポートを固定するか、接続画面に表示されるローカル UDP ポートを控えます。
-3. iPad・iPhone の Moonlight 設定で **Stream Audio** をタップし、そのポートを入力して **Use SonoBus** を選び、ストリームを開始します。初期表示の `11000` は入力例です。PC と端末の間で指定した UDP ポートに到達できることが必要です。
+2. PC の SonoBus で **Connect → Private Group** を開き、標準サーバー（`aoo.sonobus.net`）でグループに参加し、送信を有効にします。Moonlight は最初に接続できた相手の音を再生するので、PC と端末の 2 台で使うグループを選んでください。
+3. iPad・iPhone の Moonlight で **設定 → Stream Audio → SonoBus Group…** を開き、PC と同じグループ名とパスワードを入力します。パスワードのないグループは空欄で構いません。**Use SonoBus Group** を選んでストリームを開始すると、PC の参加者一覧に `Moonlight-` で始まる名前が表示されます。
+
+UDP で直接つなぐ場合は、PC の SonoBus をグループから退出させ、送信を有効にします。Moonlight の **Stream Audio → SonoBus Direct UDP…** に PC の SonoBus が表示するローカル UDP ポートを入力し、**Use SonoBus** を選びます。
 
 この設定では音声を SonoBus から直接受信します。通常の Moonlight 音声へ戻すには **Stream Audio → Use Moonlight** を選び、再接続します。受信対象は 1 台の PC で、PCM と Opus に対応します。モノラルは左右両方に再生し、ステレオは左右を保持します。[SonoBus](https://github.com/sonosaurus/sonobus) / [使用している AOO](https://github.com/essej/aoo/tree/9960da7f277b2e0a4ef2725c33895559b634cab7)
 

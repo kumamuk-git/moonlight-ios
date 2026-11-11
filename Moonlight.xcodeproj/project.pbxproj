@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		5B0B00000000000000000012 /* client.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5B0A00000000000000000012 /* client.cpp */; settings = {COMPILER_FLAGS = "-DHAVE_OPENSSL"; }; };
+		5B0B00000000000000000013 /* net_utils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5B0A00000000000000000013 /* net_utils.cpp */; };
 		5B0B00000000000000000002 /* SonoBusReceiver.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5B0A00000000000000000002 /* SonoBusReceiver.cpp */; };
 		5B0B00000000000000000003 /* sink.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5B0A00000000000000000003 /* sink.cpp */; };
 		5B0B00000000000000000004 /* common.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5B0A00000000000000000004 /* common.cpp */; settings = {COMPILER_FLAGS = "-DUSE_CODEC_OPUS=1"; }; };
@@ -180,6 +182,8 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		5B0A00000000000000000012 /* client.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = lib/src/client.cpp; sourceTree = "<group>"; };
+		5B0A00000000000000000013 /* net_utils.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = lib/src/net_utils.cpp; sourceTree = "<group>"; };
 		5B0A00000000000000000001 /* SonoBusReceiver.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SonoBusReceiver.h; sourceTree = "<group>"; };
 		5B0A00000000000000000002 /* SonoBusReceiver.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SonoBusReceiver.cpp; sourceTree = "<group>"; };
 		5B0A00000000000000000003 /* sink.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = lib/src/sink.cpp; sourceTree = "<group>"; };
@@ -390,6 +394,8 @@
 			isa = PBXGroup;
 			children = (
 				5B0A00000000000000000003 /* sink.cpp */,
+				5B0A00000000000000000012 /* client.cpp */,
+				5B0A00000000000000000013 /* net_utils.cpp */,
 				5B0A00000000000000000004 /* common.cpp */,
 				5B0A00000000000000000005 /* sync.cpp */,
 				5B0A00000000000000000006 /* time.cpp */,
@@ -937,6 +943,8 @@
 				FBDE86E619F82297001C18A8 /* UIAppView.m in Sources */,
 				5B0B00000000000000000002 /* SonoBusReceiver.cpp in Sources */,
 				5B0B00000000000000000003 /* sink.cpp in Sources */,
+				5B0B00000000000000000012 /* client.cpp in Sources */,
+				5B0B00000000000000000013 /* net_utils.cpp in Sources */,
 				5B0B00000000000000000004 /* common.cpp in Sources */,
 				5B0B00000000000000000005 /* sync.cpp in Sources */,
 				5B0B00000000000000000006 /* time.cpp in Sources */,

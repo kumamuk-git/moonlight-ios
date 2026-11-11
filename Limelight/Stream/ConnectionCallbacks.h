@@ -14,6 +14,9 @@
 - (void) stageComplete:(const char*)stageName;
 - (void) stageFailed:(const char*)stageName withError:(int)errorCode portTestFlags:(int)portTestFlags;
 - (void) launchFailed:(NSString*)message;
+#if !TARGET_OS_TV
+- (void)sonoBusFailed:(NSString *)message;
+#endif
 - (void) rumble:(unsigned short)controllerNumber lowFreqMotor:(unsigned short)lowFreqMotor highFreqMotor:(unsigned short)highFreqMotor;
 - (void) connectionStatusUpdate:(int)status;
 - (void) setHdrMode:(bool)enabled;

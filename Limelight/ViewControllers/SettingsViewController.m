@@ -9,6 +9,7 @@
 #import "SettingsViewController.h"
 #import "TemporarySettings.h"
 #import "DataManager.h"
+#import "SonoBusReceiver.h"
 
 #import <VideoToolbox/VideoToolbox.h>
 #import <AVFoundation/AVFoundation.h>
@@ -283,6 +284,9 @@ BOOL isCustomResolution(CGSize res) {
 - (void)updateStreamAudioButton {
     uint16_t port = TemporarySettings.sonoBusPort;
     NSString *title = port ? [NSString stringWithFormat:@"Stream Audio: SonoBus (UDP %u)", port] : @"Stream Audio: Moonlight";
+    if (TemporarySettings.usesSonoBusGroup) {
+        title = @"Stream Audio: SonoBus Group";
+    }
     [self.streamAudioButton setTitle:title forState:UIControlStateNormal];
 }
 
@@ -294,8 +298,72 @@ BOOL isCustomResolution(CGSize res) {
 }
 
 - (IBAction)chooseStreamAudio:(id)sender {
-    UIAlertController *alert = [UIAlertController alertControllerWithTitle:@"Stream Audio"
-        message:@"For SonoBus, enter the UDP port shown by SonoBus on the streaming PC."
+    UIAlertController *alert = [UIAlertController alertControllerWithTitle:@"Stream Audio" message:nil
+        preferredStyle:UIAlertControllerStyleAlert];
+    [alert addAction:[UIAlertAction actionWithTitle:@"SonoBus Group…" style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
+        [self chooseSonoBusGroup];
+    }]];
+    [alert addAction:[UIAlertAction actionWithTitle:@"SonoBus Direct UDP…" style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
+        [self chooseSonoBusPort];
+    }]];
+    [alert addAction:[UIAlertAction actionWithTitle:@"Use Moonlight" style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
+        [TemporarySettings setSonoBusPort:0];
+        [self updateStreamAudioButton];
+    }]];
+    [alert addAction:[UIAlertAction actionWithTitle:@"Cancel" style:UIAlertActionStyleCancel handler:nil]];
+    [self presentViewController:alert animated:YES completion:nil];
+}
+
+- (void)validateSonoBusGroup:(UITextField *)field {
+    _useSonoBusAction.enabled = [field.text stringByTrimmingCharactersInSet:NSCharacterSet.whitespaceAndNewlineCharacterSet].length > 0 &&
+        [field.text lengthOfBytesUsingEncoding:NSUTF8StringEncoding] <= SonoBusMaxGroupNameBytes;
+}
+
+- (void)chooseSonoBusGroup {
+    NSURLCredential *saved = TemporarySettings.sonoBusGroupCredential;
+    UIAlertController *alert = [UIAlertController alertControllerWithTitle:@"SonoBus Group"
+        message:@"Use the same private group as the PC on aoo.sonobus.net."
+        preferredStyle:UIAlertControllerStyleAlert];
+    [alert addTextFieldWithConfigurationHandler:^(UITextField *field) {
+        field.placeholder = @"Group name";
+        field.accessibilityLabel = field.placeholder;
+        field.autocapitalizationType = UITextAutocapitalizationTypeNone;
+        field.autocorrectionType = UITextAutocorrectionTypeNo;
+        field.smartQuotesType = UITextSmartQuotesTypeNo;
+        field.smartDashesType = UITextSmartDashesTypeNo;
+        field.text = saved.user;
+        [field addTarget:self action:@selector(validateSonoBusGroup:) forControlEvents:UIControlEventEditingChanged];
+    }];
+    [alert addTextFieldWithConfigurationHandler:^(UITextField *field) {
+        field.placeholder = @"Password (optional)";
+        field.accessibilityLabel = field.placeholder;
+        field.secureTextEntry = YES;
+        field.smartQuotesType = UITextSmartQuotesTypeNo;
+        field.smartDashesType = UITextSmartDashesTypeNo;
+        field.text = saved.password;
+    }];
+    UITextField *name = alert.textFields.firstObject;
+    UITextField *password = alert.textFields.lastObject;
+    UIAlertAction *useGroup = [UIAlertAction actionWithTitle:@"Use SonoBus Group" style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
+        if ([TemporarySettings useSonoBusGroup:name.text password:password.text ?: @""]) {
+            [self updateStreamAudioButton];
+        } else {
+            UIAlertController *error = [UIAlertController alertControllerWithTitle:@"Couldn’t save SonoBus group"
+                message:@"Unlock your device and try saving the group again." preferredStyle:UIAlertControllerStyleAlert];
+            [error addAction:[UIAlertAction actionWithTitle:@"OK" style:UIAlertActionStyleDefault handler:nil]];
+            [self presentViewController:error animated:YES completion:nil];
+        }
+    }];
+    _useSonoBusAction = useGroup;
+    [alert addAction:useGroup];
+    [self validateSonoBusGroup:name];
+    [alert addAction:[UIAlertAction actionWithTitle:@"Cancel" style:UIAlertActionStyleCancel handler:nil]];
+    [self presentViewController:alert animated:YES completion:nil];
+}
+
+- (void)chooseSonoBusPort {
+    UIAlertController *alert = [UIAlertController alertControllerWithTitle:@"SonoBus Direct UDP"
+        message:@"Enter the UDP port shown by SonoBus on the streaming PC."
         preferredStyle:UIAlertControllerStyleAlert];
     [alert addTextFieldWithConfigurationHandler:^(UITextField *field) {
         field.keyboardType = UIKeyboardTypeNumberPad;
@@ -312,10 +380,6 @@ BOOL isCustomResolution(CGSize res) {
         }];
     _useSonoBusAction = useSonoBus;
     [alert addAction:useSonoBus];
-    [alert addAction:[UIAlertAction actionWithTitle:@"Use Moonlight" style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
-        [TemporarySettings setSonoBusPort:0];
-        [self updateStreamAudioButton];
-    }]];
     [alert addAction:[UIAlertAction actionWithTitle:@"Cancel" style:UIAlertActionStyleCancel handler:nil]];
     [self presentViewController:alert animated:YES completion:nil];
 }

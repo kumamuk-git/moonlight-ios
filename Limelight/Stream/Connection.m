@@ -55,9 +55,15 @@ static void ArCleanup(void);
 typedef struct {
     const char *host;
     uint16_t port;
+    __strong NSURLCredential *group;
 } SonoBusEndpoint;
 
 static SonoBusReceiver *sonoBusReceiver;
+
+static void sonoBusGroupError(const char *message)
+{
+    [_callbacks sonoBusFailed:[NSString stringWithUTF8String:message]];
+}
 
 static void SDLCALL renderSonoBus(void *userdata, Uint8 *stream, int length)
 {
@@ -84,13 +90,19 @@ static int initSonoBus(int audioConfiguration, POPUS_MULTISTREAM_CONFIGURATION o
         ArCleanup();
         return -1;
     }
-    sonoBusReceiver = SonoBusOpen(endpoint->host, endpoint->port, have.freq, have.samples);
+    if (endpoint->group) {
+        NSString *username = [@"Moonlight-" stringByAppendingString:[NSUUID.UUID.UUIDString substringToIndex:8]];
+        SonoBusGroup group = { endpoint->group.user.UTF8String, endpoint->group.password.UTF8String,
+                               username.UTF8String, sonoBusGroupError };
+        sonoBusReceiver = SonoBusOpen("aoo.sonobus.net", 10998, have.freq, have.samples, &group);
+    } else {
+        sonoBusReceiver = SonoBusOpen(endpoint->host, endpoint->port, have.freq, have.samples, NULL);
+    }
     if (!sonoBusReceiver) {
-        Log(LOG_E, @"Failed to initialize SonoBus receiver for %s port %u", endpoint->host, endpoint->port);
+        Log(LOG_E, @"Failed to initialize SonoBus receiver");
         ArCleanup();
         return -1;
     }
-    Log(LOG_I, @"Receiving SonoBus audio from %s port %u", endpoint->host, endpoint->port);
     SDL_PauseAudioDevice(audioDevice, 0);
     [[AVAudioSession sharedInstance] setCategory:AVAudioSessionCategoryPlayback withOptions:AVAudioSessionCategoryOptionMixWithOthers error:nil];
     return 0;
@@ -557,8 +569,16 @@ void ClSetControllerLED(uint16_t controllerNumber, uint8_t r, uint8_t g, uint8_t
     [initLock lock];
     void *audioContext = NULL;
 #if !TARGET_OS_TV
-    SonoBusEndpoint endpoint = { _hostString, TemporarySettings.sonoBusPort };
-    if (endpoint.port != 0) {
+    SonoBusEndpoint endpoint = { _hostString, TemporarySettings.sonoBusPort, nil };
+    if (TemporarySettings.usesSonoBusGroup) {
+        endpoint.group = TemporarySettings.sonoBusGroupCredential;
+        if (!endpoint.group) {
+            [initLock unlock];
+            [_callbacks launchFailed:@"Open Stream Audio and save your SonoBus group again."];
+            return;
+        }
+    }
+    if (endpoint.group || endpoint.port != 0) {
         _arCallbacks.init = initSonoBus;
         // Common supplies a discard callback when the renderer doesn't consume host audio.
         _arCallbacks.decodeAndPlaySample = NULL;
