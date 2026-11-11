@@ -3,7 +3,7 @@
 ## 個人版を Windows から iPad・iPhone に入れる
 
 1. この変更を自分の GitHub リポジトリの既定ブランチに push します。AOO を含むサブモジュールの参照も含めてください。
-2. GitHub の **Actions → Build unsigned IPA → Run workflow** を実行します。完了した実行の **Artifacts** から `Moonlight-unsigned.ipa` をダウンロードします。ビルドには GitHub の macOS ランナーを使います。
+2. `master` に push すると GitHub Actions が macOS でビルドします。手動の場合は **Actions → Build unsigned IPA → Run workflow** を選びます。完了した実行の **Artifacts** から `Moonlight-unsigned.ipa` をダウンロードします。
 3. Windows で Sideloadly を開き、USB 接続した端末と IPA を選んで、自分の Apple Account で署名・インストールします。端末の案内に従って開発者を信頼し、必要に応じてデベロッパモードを有効にします。無料アカウントでは通常 7 日ごとに再署名します。[Sideloadly 公式サイト](https://sideloadly.io/)
 
 ### 変換・無変換
@@ -23,6 +23,8 @@
 Moonlight の **Resolution → Full** でパネルの実ピクセル数を横向きで要求します。**Optimize Game Settings → Yes** を選び、Windows 側の Sunshine で対象画面を指定します。すでに有効な画面なら `dd_configuration_option = verify_only` と `dd_resolution_option = auto` に設定し、新しくセッションを開始します。Windows の対象ディスプレイでその解像度が選べることが条件です。一覧にない場合は、対応するカスタム解像度または仮想ディスプレイを用意します。[Sunshine のディスプレイ設定](https://docs.lizardbyte.dev/projects/sunshine/latest/md_docs_2configuration.html#dd_resolution_option)
 
 #### 2420 × 1668 の iPad に Windows のデスクトップ全体を表示する例
+
+改造版で **Desktop** に接続すると、最初の映像フレームが届いた時に、Windows のポインターを配信画面の中央に置きます。別のモニターにポインターを置いたまま切断しても、次の接続から iPad 上でトラックパッドを使えます。
 
 1. Windows で Parsec Virtual Display Driver（0.37 以降）の仮想モニターを使う場合は、空いているカスタム解像度枠に幅 `2420`、高さ `1668`、リフレッシュレート `60` Hz を十進数で登録します。既存の枠は保持します。[Parsec のカスタム解像度の設定](https://support.parsec.app/hc/en-us/articles/32361359271444-VDD-Advanced-Configuration)
 2. 仮想モニターを作成または再接続し、Windows の **設定 → システム → ディスプレイ** で「表示画面を拡張する」を選びます。そのモニターを選択して `2420 × 1668` に設定します。Sunshine で使う間はモニターを有効にしておきます。既存の Parsec ドライバーでモニターを作成・削除できる管理ツールの一例は [ParsecVDisplay](https://github.com/nomi-san/parsec-vdd/releases) です。

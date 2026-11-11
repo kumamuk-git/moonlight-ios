@@ -50,6 +50,7 @@
     
 #if !TARGET_OS_TV
     UIScreenEdgePanGestureRecognizer *_exitSwipeRecognizer;
+    BOOL _positionedDesktopCursor;
 #endif
 }
 
@@ -621,6 +622,15 @@
 }
 
 - (void) videoContentShown {
+#if !TARGET_OS_TV
+    // Relative mouse and trackpad events start wherever Windows left its cursor.
+    // Position it on the captured display once, including when resuming Desktop.
+    if (!_positionedDesktopCursor && [self.streamConfig.appName isEqualToString:@"Desktop"]) {
+        int width = self.streamConfig.width;
+        int height = self.streamConfig.height;
+        _positionedDesktopCursor = LiSendMousePositionEvent(width / 2, height / 2, width, height) == 0;
+    }
+#endif
     [_spinner stopAnimating];
     [self.view setBackgroundColor:[UIColor blackColor]];
 }
