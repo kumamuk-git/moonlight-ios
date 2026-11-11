@@ -4,3 +4,7 @@
 [submodule "X1Kit"]
 	path = X1Kit
 	url = https://github.com/cgutman/X1Kit.git
+[submodule "ThirdParty/aoo"]
+	path = ThirdParty/aoo
+	url = https://github.com/essej/aoo.git
+	branch = sono

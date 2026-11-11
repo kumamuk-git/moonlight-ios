@@ -8,8 +8,81 @@
 
 #import "TemporarySettings.h"
 #import "OnScreenControls.h"
+#import <Security/Security.h>
 
 @implementation TemporarySettings
+
++ (uint16_t)sonoBusPort {
+    NSInteger port = [NSUserDefaults.standardUserDefaults integerForKey:@"sonoBusPort"];
+    return (port > 0 && port <= UINT16_MAX) ? (uint16_t)port : 0;
+}
+
++ (void)setSonoBusPort:(uint16_t)port {
+    [NSUserDefaults.standardUserDefaults setInteger:port forKey:@"sonoBusPort"];
+    [NSUserDefaults.standardUserDefaults setBool:NO forKey:@"sonoBusUseGroup"];
+}
+
++ (BOOL)usesSonoBusGroup {
+    return [NSUserDefaults.standardUserDefaults boolForKey:@"sonoBusUseGroup"];
+}
+
++ (uint16_t)sonoBusLocalPort {
+    NSInteger port = [NSUserDefaults.standardUserDefaults integerForKey:@"sonoBusLocalPort"];
+    return (port > 1023 && port <= UINT16_MAX) ? (uint16_t)port : 0;
+}
+
++ (void)setSonoBusLocalPort:(uint16_t)port {
+    [NSUserDefaults.standardUserDefaults setInteger:port forKey:@"sonoBusLocalPort"];
+}
+
++ (NSString *)sonoBusParticipantName {
+    NSUserDefaults *defaults = NSUserDefaults.standardUserDefaults;
+    NSString *name = [defaults stringForKey:@"sonoBusParticipantName"];
+    if (!name.length) {
+        NSString *uuid = NSUUID.UUID.UUIDString;
+        name = [@"Moonlight-" stringByAppendingString:[uuid substringFromIndex:uuid.length - 12]];
+        [defaults setObject:name forKey:@"sonoBusParticipantName"];
+    }
+    return name;
+}
+
+static NSDictionary *sonoBusKeychainQuery(void) {
+    return @{(__bridge id)kSecClass: (__bridge id)kSecClassGenericPassword,
+             (__bridge id)kSecAttrService: @"Moonlight.SonoBus",
+             (__bridge id)kSecAttrAccount: @"Private Group"};
+}
+
++ (NSURLCredential *)sonoBusGroupCredential {
+    NSMutableDictionary *query = [sonoBusKeychainQuery() mutableCopy];
+    query[(__bridge id)kSecReturnAttributes] = @YES;
+    query[(__bridge id)kSecReturnData] = @YES;
+    CFTypeRef item = NULL;
+    if (SecItemCopyMatching((__bridge CFDictionaryRef)query, &item) != errSecSuccess) {
+        return nil;
+    }
+    NSDictionary *attributes = CFBridgingRelease(item);
+    NSString *name = attributes[(__bridge id)kSecAttrLabel];
+    NSString *password = [[NSString alloc] initWithData:attributes[(__bridge id)kSecValueData] encoding:NSUTF8StringEncoding];
+    return name.length && password ? [NSURLCredential credentialWithUser:name password:password
+                                                             persistence:NSURLCredentialPersistenceNone] : nil;
+}
+
++ (BOOL)useSonoBusGroup:(NSString *)name password:(NSString *)password {
+    NSDictionary *query = sonoBusKeychainQuery();
+    NSDictionary *values = @{(__bridge id)kSecAttrLabel: name,
+                             (__bridge id)kSecValueData: [password dataUsingEncoding:NSUTF8StringEncoding],
+                             (__bridge id)kSecAttrAccessible: (__bridge id)kSecAttrAccessibleWhenUnlockedThisDeviceOnly};
+    OSStatus status = SecItemUpdate((__bridge CFDictionaryRef)query, (__bridge CFDictionaryRef)values);
+    if (status == errSecItemNotFound) {
+        NSMutableDictionary *item = [query mutableCopy];
+        [item addEntriesFromDictionary:values];
+        status = SecItemAdd((__bridge CFDictionaryRef)item, NULL);
+    }
+    if (status == errSecSuccess) {
+        [NSUserDefaults.standardUserDefaults setBool:YES forKey:@"sonoBusUseGroup"];
+    }
+    return status == errSecSuccess;
+}
 
 - (id) initFromSettings:(Settings*)settings {
     self = [self init];

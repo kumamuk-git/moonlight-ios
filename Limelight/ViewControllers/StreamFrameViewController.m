@@ -516,6 +516,20 @@
     [_streamMan stopStream];
 }
 
+#if !TARGET_OS_TV
+- (void)sonoBusFailed:(NSString *)message {
+    dispatch_async(dispatch_get_main_queue(), ^{
+        if (!self.view.window || self.presentedViewController) {
+            return;
+        }
+        UIAlertController *alert = [UIAlertController alertControllerWithTitle:@"SonoBus Audio" message:message
+            preferredStyle:UIAlertControllerStyleAlert];
+        [alert addAction:[UIAlertAction actionWithTitle:@"OK" style:UIAlertActionStyleDefault handler:nil]];
+        [self presentViewController:alert animated:YES completion:nil];
+    });
+}
+#endif
+
 - (void) launchFailed:(NSString*)message {
     Log(LOG_I, @"Launch failed: %@", message);
     

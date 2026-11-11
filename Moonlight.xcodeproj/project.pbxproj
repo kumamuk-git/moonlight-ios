@@ -7,6 +7,18 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		5B0B00000000000000000012 /* client.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5B0A00000000000000000012 /* client.cpp */; settings = {COMPILER_FLAGS = "-DHAVE_OPENSSL"; }; };
+		5B0B00000000000000000013 /* net_utils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5B0A00000000000000000013 /* net_utils.cpp */; };
+		5B0B00000000000000000002 /* SonoBusReceiver.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5B0A00000000000000000002 /* SonoBusReceiver.cpp */; };
+		5B0B00000000000000000003 /* sink.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5B0A00000000000000000003 /* sink.cpp */; };
+		5B0B00000000000000000004 /* common.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5B0A00000000000000000004 /* common.cpp */; settings = {COMPILER_FLAGS = "-DUSE_CODEC_OPUS=1"; }; };
+		5B0B00000000000000000005 /* sync.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5B0A00000000000000000005 /* sync.cpp */; };
+		5B0B00000000000000000006 /* time.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5B0A00000000000000000006 /* time.cpp */; };
+		5B0B00000000000000000007 /* codec_opus.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5B0A00000000000000000007 /* codec_opus.cpp */; };
+		5B0B00000000000000000008 /* codec_pcm.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5B0A00000000000000000008 /* codec_pcm.cpp */; };
+		5B0B00000000000000000009 /* OscReceivedElements.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5B0A00000000000000000009 /* OscReceivedElements.cpp */; };
+		5B0B00000000000000000010 /* OscOutboundPacketStream.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5B0A00000000000000000010 /* OscOutboundPacketStream.cpp */; };
+		5B0B00000000000000000011 /* OscTypes.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5B0A00000000000000000011 /* OscTypes.cpp */; };
 		693B3A9B218638CD00982F7B /* Settings.bundle in Resources */ = {isa = PBXBuildFile; fileRef = 693B3A9A218638CD00982F7B /* Settings.bundle */; };
 		98181BE92791277400E43572 /* libSDL2.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 98181BE82791275D00E43572 /* libSDL2.a */; };
 		98181BEB2791278F00E43572 /* libSDL2.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 98181BEA2791278300E43572 /* libSDL2.a */; };
@@ -171,6 +183,19 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		5B0A00000000000000000012 /* client.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = lib/src/client.cpp; sourceTree = "<group>"; };
+		5B0A00000000000000000013 /* net_utils.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = lib/src/net_utils.cpp; sourceTree = "<group>"; };
+		5B0A00000000000000000001 /* SonoBusReceiver.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SonoBusReceiver.h; sourceTree = "<group>"; };
+		5B0A00000000000000000002 /* SonoBusReceiver.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SonoBusReceiver.cpp; sourceTree = "<group>"; };
+		5B0A00000000000000000003 /* sink.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = lib/src/sink.cpp; sourceTree = "<group>"; };
+		5B0A00000000000000000004 /* common.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = lib/src/common.cpp; sourceTree = "<group>"; };
+		5B0A00000000000000000005 /* sync.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = lib/src/sync.cpp; sourceTree = "<group>"; };
+		5B0A00000000000000000006 /* time.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = lib/src/time.cpp; sourceTree = "<group>"; };
+		5B0A00000000000000000007 /* codec_opus.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = lib/src/codec_opus.cpp; sourceTree = "<group>"; };
+		5B0A00000000000000000008 /* codec_pcm.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = lib/src/codec_pcm.cpp; sourceTree = "<group>"; };
+		5B0A00000000000000000009 /* OscReceivedElements.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = deps/oscpack/osc/OscReceivedElements.cpp; sourceTree = "<group>"; };
+		5B0A00000000000000000010 /* OscOutboundPacketStream.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = deps/oscpack/osc/OscOutboundPacketStream.cpp; sourceTree = "<group>"; };
+		5B0A00000000000000000011 /* OscTypes.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = deps/oscpack/osc/OscTypes.cpp; sourceTree = "<group>"; };
 		566E9D2B2770B23A00EF7BFE /* Moonlight v1.7.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = "Moonlight v1.7.xcdatamodel"; sourceTree = "<group>"; };
 		693B3A9A218638CD00982F7B /* Settings.bundle */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.plug-in"; path = Settings.bundle; sourceTree = "<group>"; };
 		9803CCAB254F9EAF00EE185E /* ConnectionCallbacks.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ConnectionCallbacks.h; sourceTree = "<group>"; };
@@ -367,6 +392,25 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		5B0A00000000000000000000 /* AOO */ = {
+			isa = PBXGroup;
+			children = (
+				5B0A00000000000000000003 /* sink.cpp */,
+				5B0A00000000000000000012 /* client.cpp */,
+				5B0A00000000000000000013 /* net_utils.cpp */,
+				5B0A00000000000000000004 /* common.cpp */,
+				5B0A00000000000000000005 /* sync.cpp */,
+				5B0A00000000000000000006 /* time.cpp */,
+				5B0A00000000000000000007 /* codec_opus.cpp */,
+				5B0A00000000000000000008 /* codec_pcm.cpp */,
+				5B0A00000000000000000009 /* OscReceivedElements.cpp */,
+				5B0A00000000000000000010 /* OscOutboundPacketStream.cpp */,
+				5B0A00000000000000000011 /* OscTypes.cpp */,
+			);
+			name = AOO;
+			path = ThirdParty/aoo;
+			sourceTree = "<group>";
+		};
 		9896219423D15C2900211983 /* X1Kit */ = {
 			isa = PBXGroup;
 			children = (
@@ -399,6 +443,7 @@
 		FB290CE519B2C406004C83CF = {
 			isa = PBXGroup;
 			children = (
+				5B0A00000000000000000000 /* AOO */,
 				9896219423D15C2900211983 /* X1Kit */,
 				98AB2E7F1CAD46830089BB98 /* moonlight-common.xcodeproj */,
 				FB290CF919B2C406004C83CF /* Moonlight */,
@@ -545,6 +590,8 @@
 		FB89461519F646E200339C8A /* Stream */ = {
 			isa = PBXGroup;
 			children = (
+				5B0A00000000000000000001 /* SonoBusReceiver.h */,
+				5B0A00000000000000000002 /* SonoBusReceiver.cpp */,
 				FB89461619F646E200339C8A /* Connection.h */,
 				FB89461719F646E200339C8A /* Connection.m */,
 				FB89461819F646E200339C8A /* StreamConfiguration.h */,
@@ -898,6 +945,18 @@
 				FB9AFD401A7E127D00872C98 /* AppListResponse.m in Sources */,
 				FB89463419F646E200339C8A /* Utils.m in Sources */,
 				FBDE86E619F82297001C18A8 /* UIAppView.m in Sources */,
+				5B0B00000000000000000002 /* SonoBusReceiver.cpp in Sources */,
+				5B0B00000000000000000003 /* sink.cpp in Sources */,
+				5B0B00000000000000000012 /* client.cpp in Sources */,
+				5B0B00000000000000000013 /* net_utils.cpp in Sources */,
+				5B0B00000000000000000004 /* common.cpp in Sources */,
+				5B0B00000000000000000005 /* sync.cpp in Sources */,
+				5B0B00000000000000000006 /* time.cpp in Sources */,
+				5B0B00000000000000000007 /* codec_opus.cpp in Sources */,
+				5B0B00000000000000000008 /* codec_pcm.cpp in Sources */,
+				5B0B00000000000000000009 /* OscReceivedElements.cpp in Sources */,
+				5B0B00000000000000000010 /* OscOutboundPacketStream.cpp in Sources */,
+				5B0B00000000000000000011 /* OscTypes.cpp in Sources */,
 				FB89462F19F646E200339C8A /* Connection.m in Sources */,
 				FB9AFD321A7D867C00872C98 /* AppAssetRetriever.m in Sources */,
 				FB4678FF1A565DAC00377732 /* WakeOnLanManager.m in Sources */,
@@ -1207,6 +1266,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
@@ -1217,8 +1277,13 @@
 					"$(inherited)",
 					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
 					"$(PROJECT_DIR)/moonlight-common/moonlight-common-c/src",
+					"$(PROJECT_DIR)/ThirdParty/aoo/lib",
+					"$(PROJECT_DIR)/ThirdParty/aoo/deps",
 					"$(SDKROOT)/usr/include/libxml2/**",
-					"$(PROJECT_DIR)/libs/**",
+					"$(PROJECT_DIR)/libs/FFmpeg/include",
+					"$(PROJECT_DIR)/libs/SDL2/include",
+					"$(PROJECT_DIR)/libs/opus/include",
+					"$(PROJECT_DIR)/libs/opus/include/opus",
 				);
 				INFOPLIST_FILE = "Limelight/Limelight-Info.plist";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.games";
@@ -1257,6 +1322,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
@@ -1267,8 +1333,13 @@
 					"$(inherited)",
 					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
 					"$(PROJECT_DIR)/moonlight-common/moonlight-common-c/src",
+					"$(PROJECT_DIR)/ThirdParty/aoo/lib",
+					"$(PROJECT_DIR)/ThirdParty/aoo/deps",
 					"$(SDKROOT)/usr/include/libxml2/**",
-					"$(PROJECT_DIR)/libs/**",
+					"$(PROJECT_DIR)/libs/FFmpeg/include",
+					"$(PROJECT_DIR)/libs/SDL2/include",
+					"$(PROJECT_DIR)/libs/opus/include",
+					"$(PROJECT_DIR)/libs/opus/include/opus",
 				);
 				INFOPLIST_FILE = "Limelight/Limelight-Info.plist";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.games";

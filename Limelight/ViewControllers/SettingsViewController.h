@@ -21,6 +21,7 @@
 @property (strong, nonatomic) IBOutlet UISegmentedControl *multiControllerSelector;
 @property (strong, nonatomic) IBOutlet UISegmentedControl *swapABXYButtonsSelector;
 @property (strong, nonatomic) IBOutlet UISegmentedControl *audioOnPCSelector;
+@property (strong, nonatomic) IBOutlet UIButton *streamAudioButton;
 @property (strong, nonatomic) IBOutlet UISegmentedControl *codecSelector;
 @property (strong, nonatomic) IBOutlet UISegmentedControl *hdrSelector;
 @property (strong, nonatomic) IBOutlet UISegmentedControl *framePacingSelector;
