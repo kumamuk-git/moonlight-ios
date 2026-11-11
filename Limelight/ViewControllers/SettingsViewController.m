@@ -52,6 +52,8 @@ static const int bitrateTable[] = {
 };
 
 const int RESOLUTION_TABLE_SIZE = 7;
+static const int RESOLUTION_TABLE_FULL_INDEX = 5;
+static NSString *const IPadFullResolutionKey = @"iPadFullResolution";
 const int RESOLUTION_TABLE_CUSTOM_INDEX = RESOLUTION_TABLE_SIZE - 1;
 CGSize resolutionTable[RESOLUTION_TABLE_SIZE];
 
@@ -158,12 +160,12 @@ BOOL isCustomResolution(CGSize res) {
     resolutionTable[2] = CGSizeMake(1920, 1080);
     resolutionTable[3] = CGSizeMake(3840, 2160);
     resolutionTable[4] = CGSizeMake(safeAreaWidth, fullScreenHeight);
-    resolutionTable[5] = CGSizeMake(fullScreenWidth, fullScreenHeight);
+    resolutionTable[RESOLUTION_TABLE_FULL_INDEX] = CGSizeMake(fullScreenWidth, fullScreenHeight);
     if (UIDevice.currentDevice.userInterfaceIdiom == UIUserInterfaceIdiomPad) {
         // The stream is landscape. Display Zoom can make the window's logical
         // size times its scale differ from the physical panel resolution.
         CGSize panel = (window.screen ?: UIScreen.mainScreen).nativeBounds.size;
-        resolutionTable[5] = CGSizeMake(MAX(panel.width, panel.height), MIN(panel.width, panel.height));
+        resolutionTable[RESOLUTION_TABLE_FULL_INDEX] = CGSizeMake(MAX(panel.width, panel.height), MIN(panel.width, panel.height));
     }
     resolutionTable[6] = CGSizeMake([currentSettings.width integerValue], [currentSettings.height integerValue]); // custom initial value
     
@@ -193,6 +195,11 @@ BOOL isCustomResolution(CGSize res) {
             resolution = i;
             break;
         }
+    }
+    // Full and Safe Area often have identical pixel dimensions on iPad.
+    if (UIDevice.currentDevice.userInterfaceIdiom == UIUserInterfaceIdiomPad &&
+        [NSUserDefaults.standardUserDefaults boolForKey:IPadFullResolutionKey]) {
+        resolution = RESOLUTION_TABLE_FULL_INDEX;
     }
 
     // Only show the 120 FPS option if we have a > 60-ish Hz display
@@ -381,6 +388,11 @@ BOOL isCustomResolution(CGSize res) {
 }
 
 - (void) newResolutionChosen {
+    if (UIDevice.currentDevice.userInterfaceIdiom == UIUserInterfaceIdiomPad &&
+        self.resolutionSelector.selectedSegmentIndex == RESOLUTION_TABLE_FULL_INDEX) {
+        // Sunshine uses this launch flag to switch the Windows desktop to the requested mode.
+        self.optimizeSettingsSelector.selectedSegmentIndex = 1;
+    }
     BOOL lastSegmentSelected = [self.resolutionSelector selectedSegmentIndex] + 1 == [self.resolutionSelector numberOfSegments];
     if (lastSegmentSelected) {
         [self promptCustomResolutionDialog];
@@ -571,6 +583,10 @@ BOOL isCustomResolution(CGSize res) {
 }
 
 - (void) saveSettings {
+    if (UIDevice.currentDevice.userInterfaceIdiom == UIUserInterfaceIdiomPad) {
+        [NSUserDefaults.standardUserDefaults setBool:self.resolutionSelector.selectedSegmentIndex == RESOLUTION_TABLE_FULL_INDEX
+                                             forKey:IPadFullResolutionKey];
+    }
     DataManager* dataMan = [[DataManager alloc] init];
     NSInteger framerate = [self getChosenFrameRate];
     NSInteger height = [self getChosenStreamHeight];

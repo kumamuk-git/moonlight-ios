@@ -16,9 +16,8 @@ jobs:
 
       - name: Build for iPhone and iPad
         run: |
-          xcodebuild -downloadPlatform iOS
           xcodebuild -project Moonlight.xcodeproj -scheme Moonlight \
-            -configuration Release -destination 'generic/platform=iOS' \
+            -configuration Release -sdk iphoneos -destination 'generic/platform=iOS' \
             -derivedDataPath "$RUNNER_TEMP/MoonlightBuild" \
             CODE_SIGNING_ALLOWED=NO build
 
