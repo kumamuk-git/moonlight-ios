@@ -244,6 +244,7 @@
                 keyFlags = SS_KBE_FLAG_NON_NORMALIZED;
                 break;
             case UIKeyboardHIDUsageKeyboardInternational2: // JIS ひらがな / カタカナ
+            case UIKeyboardHIDUsageKeyboardLANG4: // Hiragana
                 keyCode = 0xF2; // VK_DBE_HIRAGANA
                 keyFlags = SS_KBE_FLAG_NON_NORMALIZED;
                 break;
@@ -257,6 +258,35 @@
                 break;
             case UIKeyboardHIDUsageKeyboardInternational5: // JIS 無変換
                 keyCode = 0x1D; // VK_NONCONVERT
+                keyFlags = SS_KBE_FLAG_NON_NORMALIZED;
+                break;
+            case UIKeyboardHIDUsageKeyboardLANG1:
+            case UIKeyboardHIDUsageKeyboardLANG2: {
+                // Japanese Kana/Eisu and Korean Hangul/Hanja share these two HID usages.
+                NSString *language = [NSUserDefaults.standardUserDefaults stringForKey:@"keyboardLanguageKeys"];
+                if (language == nil || [language isEqualToString:@"auto"]) {
+                    NSString *preferred = NSLocale.preferredLanguages.firstObject;
+                    language = preferred ? [NSLocale componentsFromLocaleIdentifier:preferred][NSLocaleLanguageCode] : nil;
+                }
+                BOOL lang1 = key.keyCode == UIKeyboardHIDUsageKeyboardLANG1;
+                if ([language isEqualToString:@"ja"]) {
+                    keyCode = lang1 ? 0x16 : 0x1A; // VK_IME_ON / VK_IME_OFF
+                }
+                else if ([language isEqualToString:@"ko"]) {
+                    keyCode = lang1 ? 0x15 : 0x19; // VK_HANGUL / VK_HANJA
+                }
+                else {
+                    return NO;
+                }
+                keyFlags = SS_KBE_FLAG_NON_NORMALIZED;
+                break;
+            }
+            case UIKeyboardHIDUsageKeyboardLANG3: // Katakana
+                keyCode = 0xF1; // VK_DBE_KATAKANA
+                keyFlags = SS_KBE_FLAG_NON_NORMALIZED;
+                break;
+            case UIKeyboardHIDUsageKeyboardLANG5: // Zenkaku / Hankaku
+                keyCode = 0xF3; // VK_DBE_SBCSCHAR on the JIS half/full-width key
                 keyFlags = SS_KBE_FLAG_NON_NORMALIZED;
                 break;
             case UIKeyboardHIDUsageKeypadComma:
