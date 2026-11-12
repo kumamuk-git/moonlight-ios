@@ -97,6 +97,7 @@
     else {
         switch (key.keyCode) {
             case UIKeyboardHIDUsageKeyboardReturnOrEnter:
+            case UIKeyboardHIDUsageKeyboardReturn:
                 keyCode = 0x0D;
                 break;
             case UIKeyboardHIDUsageKeyboardEscape:
@@ -124,6 +125,7 @@
                 keyCode = 0xDD;
                 break;
             case UIKeyboardHIDUsageKeyboardBackslash:
+            case UIKeyboardHIDUsageKeyboardNonUSPound:
                 keyCode = 0xDC;
                 break;
             case UIKeyboardHIDUsageKeyboardSemicolon:
@@ -148,7 +150,8 @@
                 keyCode = 0x14;
                 break;
             case UIKeyboardHIDUsageKeyboardPrintScreen:
-                keyCode = 0x2A;
+                keyCode = 0x2C; // VK_SNAPSHOT
+                modifierFlags |= MODIFIER_EXTENDED;
                 break;
             case UIKeyboardHIDUsageKeyboardScrollLock:
                 keyCode = 0x91;
@@ -210,6 +213,43 @@
                 break;
             case UIKeyboardHIDUsageKeyboardNonUSBackslash:
                 keyCode = 0xE2;
+                break;
+            case UIKeyboardHIDUsageKeyboardApplication:
+                keyCode = 0x5D; // VK_APPS
+                modifierFlags |= MODIFIER_EXTENDED;
+                break;
+            case UIKeyboardHIDUsageKeyboardExecute:
+                keyCode = 0x2B; // VK_EXECUTE
+                break;
+            case UIKeyboardHIDUsageKeyboardHelp:
+                keyCode = 0x2F; // VK_HELP
+                break;
+            case UIKeyboardHIDUsageKeyboardSelect:
+                keyCode = 0x29; // VK_SELECT
+                break;
+            case UIKeyboardHIDUsageKeyboardMute:
+                keyCode = 0xAD; // VK_VOLUME_MUTE
+                modifierFlags |= MODIFIER_EXTENDED;
+                break;
+            case UIKeyboardHIDUsageKeyboardVolumeUp:
+                keyCode = 0xAF; // VK_VOLUME_UP
+                modifierFlags |= MODIFIER_EXTENDED;
+                break;
+            case UIKeyboardHIDUsageKeyboardVolumeDown:
+                keyCode = 0xAE; // VK_VOLUME_DOWN
+                modifierFlags |= MODIFIER_EXTENDED;
+                break;
+            case UIKeyboardHIDUsageKeyboardInternational1: // JIS ろ
+                keyCode = 0xE2; // VK_OEM_102
+                keyFlags = SS_KBE_FLAG_NON_NORMALIZED;
+                break;
+            case UIKeyboardHIDUsageKeyboardInternational2: // JIS ひらがな / カタカナ
+                keyCode = 0xF2; // VK_DBE_HIRAGANA
+                keyFlags = SS_KBE_FLAG_NON_NORMALIZED;
+                break;
+            case UIKeyboardHIDUsageKeyboardInternational3: // JIS Yen
+                keyCode = 0xDC; // VK_OEM_5
+                keyFlags = SS_KBE_FLAG_NON_NORMALIZED;
                 break;
             case UIKeyboardHIDUsageKeyboardInternational4: // JIS 変換
                 keyCode = 0x1C; // VK_CONVERT
